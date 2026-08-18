@@ -78,7 +78,7 @@ export async function auditPage(
       for (const node of v.nodes) {
         violations.push({
           ruleId: v.id,
-          severity: SEVERITY_MAP[v.impact] || "moderate",
+          severity: SEVERITY_MAP[v.impact as string] || "moderate",
           wcagCriteria: v.tags.filter((t) => t.startsWith("wcag")),
           description: v.description,
           help: v.help,
