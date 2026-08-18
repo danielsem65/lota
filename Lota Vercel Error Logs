@@ -1,0 +1,49 @@
+10:16:35.595 Running build in Washington, D.C., USA (East) – iad1
+10:16:35.596 Build machine configuration: 2 cores, 8 GB
+10:16:35.714 Cloning github.com/danielsem65/lota (Branch: master, Commit: f3d1bbe)
+10:16:35.715 Previous build caches not available.
+10:16:35.984 Cloning completed: 269.000ms
+10:16:36.270 Running "vercel build"
+10:16:36.405 Vercel CLI 58.1.0
+10:16:36.575 Installing dependencies...
+10:17:06.073 npm warn deprecated prebuild-install@7.1.3: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
+10:17:07.016 npm warn deprecated puppeteer@22.15.0: < 24.15.0 is no longer supported
+10:18:28.233 
+10:18:28.234 added 528 packages in 2m
+10:18:28.235 
+10:18:28.235 172 packages are looking for funding
+10:18:28.235   run `npm fund` for details
+10:18:28.288 Detected Next.js version: 15.5.23
+10:18:28.300 Running "npm run build"
+10:18:28.402 
+10:18:28.403 > lota@0.1.0 build
+10:18:28.403 > next build
+10:18:28.403 
+10:18:28.956  ⚠ Invalid next.config.js options detected: 
+10:18:28.957  ⚠     Unrecognized key(s) in object: 'serverComponentsExternalPackages' at "experimental"
+10:18:28.957  ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+10:18:28.958  ⚠ `experimental.serverComponentsExternalPackages` has been moved to `serverExternalPackages`. Please update your next.config.js file accordingly.
+10:18:28.965 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+10:18:28.966 This information is used to shape Next.js' roadmap and prioritize features.
+10:18:28.966 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+10:18:28.967 https://nextjs.org/telemetry
+10:18:28.967 
+10:18:29.050    ▲ Next.js 15.5.23
+10:18:29.051    - Experiments (use with caution):
+10:18:29.052      · serverComponentsExternalPackages
+10:18:29.052 
+10:18:29.084    Creating an optimized production build ...
+10:18:38.791  ✓ Compiled successfully in 7.3s
+10:18:38.794    Linting and checking validity of types ...
+10:18:42.297 
+10:18:42.297 Failed to compile.
+10:18:42.297 
+10:18:42.298 ./src/app/audit/[id]/page.tsx
+10:18:42.299 78:9  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+10:18:42.299 110:11  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+10:18:42.299 
+10:18:42.299 ./src/app/layout.tsx
+10:18:42.299 19:13  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+10:18:42.300 
+10:18:42.300 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+10:18:42.317 Error: Command "npm run build" exited with 1
