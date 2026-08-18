@@ -8,9 +8,7 @@ import {
   insertViolation,
 } from "@/db/queries";
 import { crawl } from "@/engine/crawler";
-import { auditPage } from "@/engine/auditor";
-import { calculateScore } from "@/engine/scorer";
-import { chromium } from "playwright";
+import { auditHtml } from "@/engine/auditor";
 
 export const maxDuration = 300;
 
@@ -47,52 +45,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const urls = crawlResults.map((r) => r.url);
-    updateScanStatus(scan.id, "auditing", { pagesFound: urls.length });
+    updateScanStatus(scan.id, "auditing", { pagesFound: crawlResults.length });
 
-    for (const u of urls) {
-      createPage(scan.id, u, crawlResults.find((r) => r.url === u)?.depth || 0);
+    for (const r of crawlResults) {
+      createPage(scan.id, r.url, r.depth);
     }
 
-    const browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext();
-    const page = await context.newPage();
     let pagesAudited = 0;
 
-    try {
-      for (const u of urls) {
-        const pageRecord = getPageByurl(scan.id, u);
-        if (!pageRecord) continue;
+    for (const r of crawlResults) {
+      const pageRecord = getPageByurl(scan.id, r.url);
+      if (!pageRecord) continue;
 
-        try {
-          const result = await auditPage(page, u);
-          updatePageStatus(pageRecord.id, "audited", result.score);
+      try {
+        const result = await auditHtml(r.url, r.html);
+        updatePageStatus(pageRecord.id, "audited", result.score);
 
-          for (const v of result.violations) {
-            insertViolation(scan.id, pageRecord.id, v);
-          }
-
-          pagesAudited++;
-          updateScanStatus(scan.id, "auditing", { pagesAudited });
-        } catch {
-          updatePageStatus(pageRecord.id, "error");
+        for (const v of result.violations) {
+          insertViolation(scan.id, pageRecord.id, v);
         }
+
+        pagesAudited++;
+        updateScanStatus(scan.id, "auditing", { pagesAudited });
+      } catch {
+        updatePageStatus(pageRecord.id, "error");
       }
-    } finally {
-      await context.close();
-      await browser.close();
     }
 
     updateScanStatus(scan.id, "done", {
       pagesAudited,
-      pagesFound: urls.length,
+      pagesFound: crawlResults.length,
     });
 
     return NextResponse.json({
       scanId: scan.id,
       status: "done",
       pagesAudited,
-      pagesFound: urls.length,
+      pagesFound: crawlResults.length,
     });
   } catch (error) {
     return NextResponse.json(

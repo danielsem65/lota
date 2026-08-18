@@ -75,7 +75,7 @@ export async function crawl(
 
       const html = await response.text();
       const links = extractLinks(html, normalized);
-      const result: CrawlResult = { url: normalized, depth, links };
+      const result: CrawlResult = { url: normalized, depth, links, html };
       results.push(result);
 
       options.onProgress?.(results.length, normalized);

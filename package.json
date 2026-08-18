@@ -12,18 +12,17 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.10.0",
     "axe-core": "^4.10.0",
     "better-sqlite3": "^11.7.0",
+    "jsdom": "^25.0.0",
     "next": "^15.1.0",
-    "pa11y": "^8.0.0",
-    "playwright": "^1.49.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "uuid": "^11.0.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
+    "@types/jsdom": "^21.1.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

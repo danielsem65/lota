@@ -2,6 +2,7 @@ export interface CrawlResult {
   url: string;
   depth: number;
   links: string[];
+  html: string;
 }
 
 export interface AuditViolation {
