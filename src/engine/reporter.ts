@@ -1,0 +1,152 @@
+import { ScanResult, AuditViolation } from "./types";
+
+export function generateJsonReport(result: ScanResult): object {
+  return {
+    meta: {
+      url: result.url,
+      scanId: result.id,
+      score: result.score,
+      totalViolations: result.totalViolations,
+      pagesAudited: result.pagesAudited,
+      timestamp: new Date().toISOString(),
+    },
+    summary: {
+      score: result.score,
+      grade: getGrade(result.score),
+      bySeverity: result.bySeverity,
+      pagesAudited: result.pagesAudited,
+    },
+    pages: result.pages.map((p) => ({
+      url: p.url,
+      score: p.score,
+      violationCount: p.violations.length,
+      passes: p.passes,
+      incomplete: p.incomplete,
+      violations: p.violations.map(formatViolation),
+    })),
+  };
+}
+
+export function generateHtmlReport(result: ScanResult): string {
+  const grade = getGrade(result.score);
+  const gradeColor =
+    grade === "A"
+      ? "#22c55e"
+      : grade === "B"
+        ? "#84cc16"
+        : grade === "C"
+          ? "#eab308"
+          : grade === "D"
+            ? "#f97316"
+            : "#ef4444";
+
+  const violationRows = result.pages
+    .flatMap((p) =>
+      p.violations.map((v) => ({
+        page: p.url,
+        ...v,
+      }))
+    )
+    .map(
+      (v) => `
+      <tr>
+        <td style="padding:8px;border-bottom:1px solid #333"><a href="${v.page}" style="color:#60a5fa">${truncate(v.page, 40)}</a></td>
+        <td style="padding:8px;border-bottom:1px solid #333"><code style="background:#1e293b;padding:2px 6px;border-radius:4px;font-size:12px">${v.ruleId}</code></td>
+        <td style="padding:8px;border-bottom:1px solid #333"><span style="color:${severityColor(v.severity)};font-weight:600">${v.severity}</span></td>
+        <td style="padding:8px;border-bottom:1px solid #333;font-size:13px">${v.description}</td>
+        <td style="padding:8px;border-bottom:1px solid #333;font-size:12px;color:#94a3b8">${v.fixSuggestion}</td>
+      </tr>`
+    )
+    .join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lota Report — ${result.url}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { font-size: 32px; margin-bottom: 8px; }
+    .header .url { color: #60a5fa; font-size: 14px; }
+    .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 6px solid ${gradeColor}; display: flex; align-items: center; justify-content: center; margin: 20px auto; }
+    .score-circle .number { font-size: 48px; font-weight: 700; color: ${gradeColor}; }
+    .grade { font-size: 24px; font-weight: 700; color: ${gradeColor}; text-align: center; margin-bottom: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+    .stat { background: #1e293b; padding: 20px; border-radius: 12px; text-align: center; }
+    .stat .number { font-size: 28px; font-weight: 700; }
+    .stat .label { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { padding: 12px 8px; text-align: left; border-bottom: 2px solid #334155; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Lota Accessibility Report</h1>
+      <p class="url">${result.url}</p>
+    </div>
+
+    <div class="score-circle">
+      <span class="number">${result.score}</span>
+    </div>
+    <div class="grade">Grade ${grade}</div>
+
+    <div class="stats">
+      <div class="stat"><div class="number" style="color:#ef4444">${result.bySeverity.critical}</div><div class="label">Critical</div></div>
+      <div class="stat"><div class="number" style="color:#f97316">${result.bySeverity.serious}</div><div class="label">Serious</div></div>
+      <div class="stat"><div class="number" style="color:#eab308">${result.bySeverity.moderate}</div><div class="label">Moderate</div></div>
+      <div class="stat"><div class="number" style="color:#60a5fa">${result.bySeverity.minor}</div><div class="label">Minor</div></div>
+    </div>
+
+    <h2 style="margin-bottom:16px">Violations (${result.totalViolations})</h2>
+    <table>
+      <thead><tr><th>Page</th><th>Rule</th><th>Severity</th><th>Description</th><th>Fix</th></tr></thead>
+      <tbody>${violationRows || '<tr><td colspan="5" style="text-align:center;padding:40px;color:#22c55e">No violations found!</td></tr>'}</tbody>
+    </table>
+
+    <p style="text-align:center;margin-top:40px;color:#475569;font-size:12px">Generated by Lota — Accessibility clarity in one scan</p>
+  </div>
+</body>
+</html>`;
+}
+
+function formatViolation(v: AuditViolation) {
+  return {
+    ruleId: v.ruleId,
+    severity: v.severity,
+    wcagCriteria: v.wcagCriteria,
+    description: v.description,
+    help: v.help,
+    helpUrl: v.helpUrl,
+    htmlSnippet: v.htmlSnippet,
+    cssSelector: v.cssSelector,
+    fixSuggestion: v.fixSuggestion,
+  };
+}
+
+function getGrade(score: number): string {
+  if (score >= 90) return "A";
+  if (score >= 80) return "B";
+  if (score >= 70) return "C";
+  if (score >= 50) return "D";
+  return "F";
+}
+
+function severityColor(severity: string): string {
+  switch (severity) {
+    case "critical": return "#ef4444";
+    case "serious": return "#f97316";
+    case "moderate": return "#eab308";
+    case "minor": return "#60a5fa";
+    default: return "#94a3b8";
+  }
+}
+
+function truncate(str: string, len: number): string {
+  return str.length > len ? str.substring(0, len) + "..." : str;
+}
