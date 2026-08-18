@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import ScoreGauge from "@/components/ScoreGauge";
 import ViolationList from "@/components/ViolationList";
 import PageBreakdown from "@/components/PageBreakdown";
@@ -75,9 +76,9 @@ export default function AuditDetailPage() {
         <div className="mb-4 text-4xl text-red-400">!</div>
         <h1 className="mb-2 text-xl font-bold">Scan Failed</h1>
         <p className="text-slate-500">Something went wrong. Try again.</p>
-        <a href="/" className="mt-6 inline-block text-emerald-400 underline">
+        <Link href="/" className="mt-6 inline-block text-emerald-400 underline">
           Go back
-        </a>
+        </Link>
       </div>
     );
   }
@@ -107,12 +108,12 @@ export default function AuditDetailPage() {
     <div>
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <a
+          <Link
             href="/"
             className="mb-2 inline-block text-sm text-slate-500 hover:text-slate-300"
           >
             &larr; New scan
-          </a>
+          </Link>
           <h1 className="text-2xl font-bold">{data.url}</h1>
           <p className="mt-1 text-sm text-slate-500">
             {data.pagesAudited} pages audited &middot; {data.totalViolations}{" "}
